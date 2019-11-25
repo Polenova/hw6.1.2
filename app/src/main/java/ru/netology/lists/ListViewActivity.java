@@ -27,23 +27,21 @@ public class ListViewActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefresh;
     private ListView list;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_view);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        updateList();
+        initSwipeRefresh();
+    }
 
+    private void updateList() {
         SharedPreferences();
         List<Map<String, String>> values = prepareContent();
         listContentAdapter = createAdapter(values);
         initList();
-        initSwipeRefresh();
-    }
-
-    private void updateList(){
-        prepareContent();
         listContentAdapter.notifyDataSetChanged();
     }
 

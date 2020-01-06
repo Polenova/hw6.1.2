@@ -19,13 +19,14 @@ import java.util.Map;
 
 public class ListViewActivity extends AppCompatActivity {
 
-    private String stringLageText;
+    private String stringLargeText;
     private SimpleAdapter listContentAdapter;
     private SharedPreferences savePreferens;
     private List<Map<String, String>> content;
     private static String LARGE_TEXT = "large_text";
     private SwipeRefreshLayout swipeRefresh;
     private ListView list;
+    private ArrayList<Integer> indexRemoveItems = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +36,21 @@ public class ListViewActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         updateList();
         initSwipeRefresh();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putIntegerArrayList("key", indexRemoveItems);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        indexRemoveItems = savedInstanceState.getIntegerArrayList("key");
+        for (Integer integer : indexRemoveItems) {
+            content.remove(integer.intValue());
+        }
     }
 
     private void updateList() {
@@ -50,6 +66,7 @@ public class ListViewActivity extends AppCompatActivity {
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                indexRemoveItems = new ArrayList<>();
                 updateList();
                 swipeRefresh.setRefreshing(false);
             }
@@ -63,16 +80,17 @@ public class ListViewActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 content.remove(i);
+                indexRemoveItems.add(i);
                 listContentAdapter.notifyDataSetChanged();
             }
         });
     }
 
     private void SharedPreferences() {
-        stringLageText = getString(R.string.large_text);
+        stringLargeText = getString(R.string.large_text);
         savePreferens = getSharedPreferences("TEXT", MODE_PRIVATE);
         SharedPreferences.Editor editorPref = savePreferens.edit();
-        editorPref.putString("LAGE_TEXT", stringLageText);
+        editorPref.putString("LARGE_TEXT", stringLargeText);
         editorPref.apply();
     }
 
@@ -86,7 +104,7 @@ public class ListViewActivity extends AppCompatActivity {
     @NonNull
     private List<Map<String, String>> prepareContent() {
         content = new ArrayList<>();
-        String[] arrayContent = savePreferens.getString("LAGE_TEXT", stringLageText).split("\n\n");
+        String[] arrayContent = savePreferens.getString("LARGE_TEXT", stringLargeText).split("\n\n");
         Map<String, String> map;
         for (int i = 0; i < arrayContent.length; i++) {
             map = new HashMap<>();
